@@ -5,6 +5,7 @@ import {
   createMint,
   getOrCreateAssociatedTokenAccount,
   mintTo,
+  getAssociatedTokenAddressSync,
 } from "@solana/spl-token";
 const RPC_ENDPOINT = "https://api.devnet.solana.com";
 const connection = new web3.Connection(RPC_ENDPOINT, "confirmed");
@@ -39,10 +40,7 @@ export function findTreasurerAccount(
 }
 
 export async function findMintTokenAccount(owner: PublicKey, mint: PublicKey) {
-  const token_account = await associatedAddress({
-    mint,
-    owner,
-  });
+  const token_account = await getAssociatedTokenAddressSync(mint, owner, true);
   return token_account;
 }
 
@@ -79,7 +77,6 @@ export async function createTokenMint(
 
   console.log("Mint created: ", mint.toBase58());
 
-  //   const tokenAccount = await mint.createAccount(anchorWallet.publicKey);
   const tokenAccount = await getOrCreateAssociatedTokenAccount(
     connection,
     creator.payer,
