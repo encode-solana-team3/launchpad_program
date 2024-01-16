@@ -9,6 +9,8 @@ import {
   findLaunchPoolAccount,
   findMintTokenAccount,
   findTreasurerAccount,
+  findUserPoolAccount,
+  findVaultAccount,
 } from "./utils";
 import {
   ASSOCIATED_TOKEN_PROGRAM_ID,
@@ -48,6 +50,8 @@ const RPC_ENDPOINT = "https://api.devnet.solana.com";
 
   await createNativeFairlaunchPool(program, creator_wallet, mint);
   await startLaunchPool(program, creator_wallet, mint);
+  await buyToken(program, creator_wallet.publicKey, mint, bob_wallet, 50);
+  // await buyToken(program, creator_wallet.publicKey, mint, bob_wallet, 5);
 })();
 
 export async function createNativeFairlaunchPool(
@@ -143,5 +147,49 @@ export async function startLaunchPool(
     .signers([creator.payer])
     .rpc();
   console.log("Start launch pool in tx: ", "\n", tx);
+  console.log("********************************");
+}
+
+export async function buyToken(
+  program: Program<EncodeSolTeam3>,
+  creator: PublicKey,
+  mint: PublicKey,
+  buyer: Wallet,
+  amount: number
+) {
+  const [launch_pool] = findLaunchPoolAccount(creator, mint, program.programId);
+
+  const [user_pool] = findUserPoolAccount(
+    buyer.publicKey,
+    launch_pool,
+    mint,
+    program.programId
+  );
+
+  const [vault] = findVaultAccount(launch_pool, creator, program.programId);
+
+  console.log(
+    `buyer ${buyer.publicKey.toBase58()} want buy ${amount} token at launch pool ${launch_pool.toBase58()}`
+  );
+  console.log("--------------------------------------");
+  const tx = await program.methods
+    .buyTokenWithNative(new BN(amount * LAMPORTS_PER_SOL))
+    .accounts({
+      launchPool: launch_pool,
+      userPool: user_pool,
+      user: buyer.publicKey,
+      vault,
+      tokenMint: mint,
+      tokenProgram: TOKEN_PROGRAM_ID,
+      systemProgram: web3.SystemProgram.programId,
+      rent: web3.SYSVAR_RENT_PUBKEY,
+    })
+    .signers([buyer.payer])
+    .rpc();
+
+  console.log("Buy with renec in tx: ", "\n", tx);
+
+  const data = await program.account.userPool.fetch(user_pool);
+  console.log("User pool account: ", data.amount.toNumber());
   console.log("********************************");
 }
