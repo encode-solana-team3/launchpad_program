@@ -5,7 +5,7 @@ pub mod instructions;
 pub mod state;
 use instructions::*;
 
-declare_id!("BW6SPYkVKy7QzVRwAdstwDUyUYHxiLXBwP2cwwRQpgG6");
+declare_id!("Eo9a3Zjn5HbGnL9wqkjDmajQ5EGzgaBbW77YhUZNVLo5");
 
 #[program]
 pub mod encode_sol_team3 {

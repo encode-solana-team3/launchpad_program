@@ -15,7 +15,9 @@ import {
   TOKEN_PROGRAM_ID,
 } from "@solana/spl-token";
 dotenv.config();
-const PROGRAM_ID = new PublicKey("D6ghYKKSngtijiDtyEjR1Q4PwQmeh24u5mgMFkvw4dq");
+const PROGRAM_ID = new PublicKey(
+  "Eo9a3Zjn5HbGnL9wqkjDmajQ5EGzgaBbW77YhUZNVLo5"
+);
 const RPC_ENDPOINT = "https://api.devnet.solana.com";
 
 (async () => {
@@ -43,16 +45,17 @@ const RPC_ENDPOINT = "https://api.devnet.solana.com";
   );
 
   const mint = await createTokenMint(creator_wallet, creator_wallet.publicKey);
-  console.log("mint: ", mint.toBase58());
+
+  await createNativeFairlaunchPool(program, creator_wallet, mint);
 })();
 
 export async function createNativeFairlaunchPool(
   program: Program<EncodeSolTeam3>,
   creator: Wallet,
   mint: PublicKey,
-  max = 10,
-  min = 5,
-  rate = new BN(500)
+  max = 100,
+  min = 50,
+  rate = new BN(50)
 ) {
   const unlock_date = new BN(dayjs().add(5, "s").unix());
   const pool_size = new BN(100 * LAMPORTS_PER_SOL);
