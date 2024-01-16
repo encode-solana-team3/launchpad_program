@@ -1,0 +1,19 @@
+```
+git clone git@github.com:encode-solana-team3/launchpad_program.git
+
+cd launchpad_program
+
+anchor build
+
+# optional
+anchor deploy --provider.cluster devnet
+
+cp .env.example .env
+
+# base58 encoded private key needs to be a JSON array of ints
+K=YOURBASE58KEY node -e 'console.log(`[${require("@solana/web3.js").Keypair.fromSecretKey(require("bs58").decode(process.env.K)).secretKey}]`);'
+
+npm i
+
+npm run dev
+```
