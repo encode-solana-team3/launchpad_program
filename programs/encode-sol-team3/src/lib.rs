@@ -34,4 +34,8 @@ pub mod encode_sol_team3 {
     pub fn start_launch_pool(ctx: Context<StartLaunchPool>) -> Result<()> {
         instructions::start_launch_pool::handler(ctx)
     }
+
+    pub fn buy_token_with_native(ctx: Context<BuyTokenWithNative>, amount: u64) -> Result<()> {
+        instructions::buy_token_with_native::handler(ctx, amount)
+    }
 }
