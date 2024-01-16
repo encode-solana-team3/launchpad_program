@@ -51,7 +51,8 @@ const RPC_ENDPOINT = "https://api.devnet.solana.com";
   await createNativeFairlaunchPool(program, creator_wallet, mint);
   await startLaunchPool(program, creator_wallet, mint);
   await buyToken(program, creator_wallet.publicKey, mint, bob_wallet, 50);
-  // await buyToken(program, creator_wallet.publicKey, mint, bob_wallet, 5);
+  await completeLaunchPool(program, creator_wallet, mint);
+  await claimToken(program, creator_wallet.publicKey, mint, bob_wallet);
 })();
 
 export async function createNativeFairlaunchPool(
@@ -187,9 +188,91 @@ export async function buyToken(
     .signers([buyer.payer])
     .rpc();
 
-  console.log("Buy with renec in tx: ", "\n", tx);
+  console.log("Buy token in tx: ", "\n", tx);
 
   const data = await program.account.userPool.fetch(user_pool);
   console.log("User pool account: ", data.amount.toNumber());
+  console.log("********************************");
+}
+
+export async function completeLaunchPool(
+  program: Program<EncodeSolTeam3>,
+  creator: Wallet,
+  mint: PublicKey
+) {
+  const [launch_pool] = findLaunchPoolAccount(
+    creator.publicKey,
+    mint,
+    program.programId
+  );
+
+  console.log(
+    `launch pool ${launch_pool.toBase58()} run to completed by ${creator.publicKey.toBase58()} with mint ${mint.toBase58()}`
+  );
+  console.log("--------------------------------------");
+  const tx = await program.methods
+    .completeLaunchPool()
+    .accounts({
+      launchPool: launch_pool,
+      authority: creator.publicKey,
+      tokenMint: mint,
+    })
+    .signers([creator.payer])
+    .rpc();
+
+  console.log("Complete launch pool in tx:", "\n", tx);
+  console.log("********************************");
+}
+
+export async function claimToken(
+  program: Program<EncodeSolTeam3>,
+  creator: PublicKey,
+  mint: PublicKey,
+  buyer: Wallet
+) {
+  const [launch_pool] = findLaunchPoolAccount(creator, mint, program.programId);
+  const [treasurer, treasurerBump] = findTreasurerAccount(
+    launch_pool,
+    mint,
+    program.programId
+  );
+  const treasury = await findMintTokenAccount(treasurer, mint);
+  const [user_pool] = findUserPoolAccount(
+    buyer.publicKey,
+    launch_pool,
+    mint,
+    program.programId
+  );
+
+  const userTokenAccount = await findMintTokenAccount(buyer.publicKey, mint);
+
+  const data = await program.account.userPool.fetch(user_pool);
+  console.log("User pool account: ", data.amount.toNumber());
+  console.log("user payed: ", data.currencyAmount.toNumber());
+
+  console.log(
+    `buyer ${buyer.publicKey.toBase58()} want claim ${data.amount.toNumber()} token ${mint.toBase58()} at launch pool ${launch_pool.toBase58()}`
+  );
+  console.log("--------------------------------------");
+
+  const tx = await program.methods
+    .claimToken()
+    .accounts({
+      launchPool: launch_pool,
+      userPool: user_pool,
+      treasurer,
+      treasury,
+      user: buyer.publicKey,
+      userTokenAccount,
+      tokenMint: mint,
+      tokenProgram: TOKEN_PROGRAM_ID,
+      associatedTokenProgram: ASSOCIATED_TOKEN_PROGRAM_ID,
+      systemProgram: web3.SystemProgram.programId,
+      rent: web3.SYSVAR_RENT_PUBKEY,
+    })
+    .signers([buyer.payer])
+    .rpc();
+
+  console.log("Claim token in tx: ", "\n", tx);
   console.log("********************************");
 }
