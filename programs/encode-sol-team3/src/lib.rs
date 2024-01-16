@@ -3,7 +3,6 @@ pub mod constants;
 pub mod errors;
 pub mod instructions;
 pub mod state;
-pub mod utils;
 use instructions::*;
 
 declare_id!("BW6SPYkVKy7QzVRwAdstwDUyUYHxiLXBwP2cwwRQpgG6");
@@ -30,5 +29,9 @@ pub mod encode_sol_team3 {
             rate,
             token_mint_decimals,
         )
+    }
+
+    pub fn start_launch_pool(ctx: Context<StartLaunchPool>) -> Result<()> {
+        instructions::start_launch_pool::handler(ctx)
     }
 }
