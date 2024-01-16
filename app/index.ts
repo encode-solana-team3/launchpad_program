@@ -47,6 +47,7 @@ const RPC_ENDPOINT = "https://api.devnet.solana.com";
   const mint = await createTokenMint(creator_wallet, creator_wallet.publicKey);
 
   await createNativeFairlaunchPool(program, creator_wallet, mint);
+  await startLaunchPool(program, creator_wallet, mint);
 })();
 
 export async function createNativeFairlaunchPool(
@@ -98,5 +99,49 @@ export async function createNativeFairlaunchPool(
     .rpc();
 
   console.log("Create a new launchpool in tx: ", "\n", tx);
+  console.log("********************************");
+}
+
+export async function startLaunchPool(
+  program: Program<EncodeSolTeam3>,
+  creator: Wallet,
+  mint: PublicKey
+) {
+  const [launch_pool] = findLaunchPoolAccount(
+    creator.publicKey,
+    mint,
+    program.programId
+  );
+  const source_token_account = await findMintTokenAccount(
+    creator.publicKey,
+    mint
+  );
+  const [treasurer] = findTreasurerAccount(
+    launch_pool,
+    mint,
+    program.programId
+  );
+  const treasury = await findMintTokenAccount(treasurer, mint);
+
+  console.log(
+    `launch_pool: ${launch_pool.toBase58()} creator: ${creator.publicKey.toBase58()} with mint: ${mint.toBase58()} starting ....`
+  );
+  console.log("--------------------------------------");
+  const tx = await program.methods
+    .startLaunchPool()
+    .accounts({
+      launchPool: launch_pool,
+      tokenMint: mint,
+      sourceTokenAccount: source_token_account,
+      treasurer: treasurer,
+      treasury: treasury,
+      authority: creator.publicKey,
+      tokenProgram: TOKEN_PROGRAM_ID,
+      rent: web3.SYSVAR_RENT_PUBKEY,
+      systemProgram: web3.SystemProgram.programId,
+    })
+    .signers([creator.payer])
+    .rpc();
+  console.log("Start launch pool in tx: ", "\n", tx);
   console.log("********************************");
 }
