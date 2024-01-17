@@ -63,7 +63,7 @@ export async function createNativeFairlaunchPool(
   min = 50,
   rate = new BN(50)
 ) {
-  const unlock_date = new BN(dayjs().add(5, "s").unix());
+  const unlock_date = new BN(dayjs().add(3, "s").unix());
   const pool_size = new BN(100 * LAMPORTS_PER_SOL);
   const minimum_token_amount = new BN(min * LAMPORTS_PER_SOL);
   const maximum_token_amount = new BN(max * LAMPORTS_PER_SOL);
