@@ -5,6 +5,9 @@ cd launchpad_program
 
 anchor build
 
+cp target/idl/encode_sol_team3.json app/artifacts/encode_sol_team3.json
+cp target/types/encode_sol_team3.ts app/artifacts/encode_sol_team3.ts
+
 # optional
 anchor deploy --provider.cluster devnet
 
