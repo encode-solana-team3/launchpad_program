@@ -5,7 +5,7 @@ seeds = false
 skip-lint = false
 
 [programs.localnet]
-encode_sol_team3 = "Eo9a3Zjn5HbGnL9wqkjDmajQ5EGzgaBbW77YhUZNVLo5"
+encode_sol_team3 = "8J56ETbYhuYvMs26UY5Yey8ALCo5mWDdJMdsUVo8a265"
 
 [registry]
 url = "https://api.apr.dev"
